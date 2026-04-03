@@ -48,7 +48,7 @@ esp_err_t lcd_init(esp_lcd_panel_io_handle_t *io_handle, esp_lcd_panel_handle_t 
     ESP_GOTO_ON_ERROR(esp_lcd_new_panel_st7735(*io_handle, &panel_config, panel_handle), err, TAG, "ST7735 driver init failed");
     ESP_GOTO_ON_ERROR(esp_lcd_panel_reset(*panel_handle), err, TAG, "Panel reset failed");
     ESP_GOTO_ON_ERROR(esp_lcd_panel_init(*panel_handle), err, TAG, "Panel init failed");
-    ESP_GOTO_ON_ERROR(esp_lcd_panel_invert_color(*panel_handle, true), err, TAG, "Invert color failed");
+    ESP_GOTO_ON_ERROR(esp_lcd_panel_invert_color(*panel_handle, false), err, TAG, "Invert color failed");
     ESP_GOTO_ON_ERROR(esp_lcd_panel_set_gap(*panel_handle, 2, 1), err, TAG, "Set gap failed");
     ESP_GOTO_ON_ERROR(esp_lcd_panel_disp_on_off(*panel_handle, true), err, TAG, "Turn on display failed");
 

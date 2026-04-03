@@ -6,6 +6,7 @@
 #include "esp_flash.h"
 #include "esp_system.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -13,6 +14,7 @@
 #include "led.h"
 #include "esp_lcd_panel_ops.h"
 
+#include "img.c"
 
 static uint8_t s_led_state = 0;
 
@@ -56,12 +58,9 @@ void app_main(void)
 
     ESP_ERROR_CHECK(lcd_init(&lcd_panel_io_handle, &lcd_panel_handle));
 
-    static uint16_t color_data[LCD_H_RES * LCD_V_RES];
+    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(lcd_panel_handle, 0, 0, LCD_H_RES, LCD_V_RES, img_map));
 
     while (1) {
-        memset(color_data, rand(), sizeof(color_data));
-        ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(lcd_panel_handle, 0, 0, LCD_H_RES, LCD_V_RES, color_data));
-
         led_set(s_led_state);
         s_led_state = !s_led_state;
         vTaskDelay(1000 / portTICK_PERIOD_MS);
