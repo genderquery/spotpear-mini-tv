@@ -14,14 +14,13 @@
 #include "led.h"
 #include "esp_lcd_panel_ops.h"
 
-#include "img.c"
+#include "lvgl.h"
+#include "esp_lvgl_port.h"
 
 static uint8_t s_led_state = 0;
 
 void app_main(void)
 {
-    printf("Hello world!\n");
-
     /* Print chip information */
     esp_chip_info_t chip_info;
     uint32_t flash_size;
@@ -58,7 +57,37 @@ void app_main(void)
 
     ESP_ERROR_CHECK(lcd_init(&lcd_panel_io_handle, &lcd_panel_handle));
 
-    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(lcd_panel_handle, 0, 0, LCD_H_RES, LCD_V_RES, img_map));
+    const lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
+    ESP_ERROR_CHECK(lvgl_port_init(&lvgl_cfg));
+
+    const lvgl_port_display_cfg_t disp_cfg = {
+          .io_handle = lcd_panel_io_handle,
+          .panel_handle = lcd_panel_handle,
+          .buffer_size = LCD_H_RES*LCD_V_RES,
+          .double_buffer = true,
+          .hres = LCD_H_RES,
+          .vres = LCD_V_RES,
+          .monochrome = false,
+          .color_format = LV_COLOR_FORMAT_RGB565,
+          .rounder_cb = NULL,
+          .rotation = {
+              .swap_xy = false,
+              .mirror_x = false,
+              .mirror_y = false,
+          },
+          .flags = {
+              .buff_dma = true,
+              .swap_bytes = true,
+          }
+      };
+
+    lv_disp_t *disp_handle = lvgl_port_add_disp(&disp_cfg);
+
+    lvgl_port_lock(0);
+    lv_obj_t *screen = lv_disp_get_scr_act(disp_handle);
+    lv_obj_t *label = lv_label_create(screen);
+    lv_label_set_text(label, "Hello, world!");
+    lvgl_port_unlock();
 
     while (1) {
         led_set(s_led_state);
